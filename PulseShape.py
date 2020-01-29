@@ -88,7 +88,7 @@ def pulseshape(data,mysnr):
     baseline = 0.5 * (np.mean(profile[0:base1]) + np.mean(profile[base2:]))
     std_baseline = 0.5 * (np.std(profile[0:base1]) + np.std(profile[base2:]))
 #    print('Off pulse baseline to subtract is: ', baseline, std_baseline)
-    yn = profile[left-60:right+60] - baseline
+    yn = profile[left-min(left,60):min(right+60,len(profile))] - baseline
     gp_last = get_gp(yn)
     t = np.arange(len(yn))
     mu, var = gp_last.predict(yn, t, return_var=True)
