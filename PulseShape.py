@@ -94,8 +94,9 @@ def pulseshape(data):
     mu, var = gp_last.predict(yn, t, return_var=True)
     noise = np.sqrt(np.exp(gp_last.get_parameter_vector()[1]))
     print('GP Noise standard deviation: ', noise)
-    std = np.sqrt(np.mean(var)+noise**2)
-    # ## Return the standard deviation of the noise, the left and
+#    std = np.sqrt(np.mean(var)+noise**2)
+    std = noise
+# ## Return the standard deviation of the noise, the left and
     # ## right pulse boundaries referring to the input array, and the
     # ## noiseless profile cut at 60 bins either side of the pulse
     left -= originalbins/2 - binmax
