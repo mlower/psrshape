@@ -53,15 +53,16 @@ def get_boundaries(profile, gp, snr):
     noise = np.sqrt(np.exp(gp.get_parameter_vector()[1]))
 #    print('noise: ', noise)
     baseline = np.mean(profile[1:20])
-    while left == bins:
+    while left == bins and index < bins:
         if mu[index] - baseline > snr * noise        and mu[index+1] - baseline > snr * noise        and mu[index+2] - baseline > snr * noise        and mu[index+3] - baseline > snr * noise:
             left = index
         index += 1
     index = 1
-    while right == 0:
+    while right == 0 and index < bins:
         if mu[-index] - baseline > snr * noise        and mu[-(index+1)] - baseline > snr * noise        and mu[-(index+2)] - baseline > snr * noise        and mu[-(index+3)] - baseline > snr * noise:
             right = bins - index
         index += 1
+
     return left, right
 
 # ## Define the main callable function pulseshape(1D_data_array)
@@ -81,6 +82,8 @@ def pulseshape(data,mysnr):
     # ## Find a window of data around the pulse and produce noiseless data
 
     left, right = get_boundaries(profile, gp1, mysnr)
+    if right == 0 and left == originalbins:
+        return 0,60,originalbins-60,np.zeros((originalbins))
     bins = right + 60 - (left - 60) 
 #    print('boundaries: ', left, right)
     base1 = np.int(left/2)
