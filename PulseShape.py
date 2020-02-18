@@ -44,27 +44,85 @@ def get_gp(profile):
     gp.set_parameter_vector(results.x)
     return gp
 
-def get_boundaries(profile, gp, snr):
-    mu, var = gp.predict(profile, np.arange(len(profile)), return_var=True)
-    bins = len(profile)
+def get_boundaries(mu, noise, snr):
+    bins = len(mu)
     left = bins
     right = 0
     index = 0
-    noise = np.sqrt(np.exp(gp.get_parameter_vector()[1]))
+
 #    print('noise: ', noise)
-    baseline = np.mean(profile[1:20])
+    baseline = np.min(mu) + noise
     while left == bins and index < bins:
-        if mu[index] - baseline > snr * noise        and mu[index+1] - baseline > snr * noise        and mu[index+2] - baseline > snr * noise        and mu[index+3] - baseline > snr * noise:
+        if mu[index] - baseline > snr * noise and \
+           mu[index+1] - baseline > snr * noise and \
+           mu[index+2] - baseline > snr * noise and \
+           mu[index+3] - baseline > snr * noise:
             left = index
         index += 1
     index = 1
     while right == 0 and index < bins:
-        if mu[-index] - baseline > snr * noise        and mu[-(index+1)] - baseline > snr * noise        and mu[-(index+2)] - baseline > snr * noise        and mu[-(index+3)] - baseline > snr * noise:
+        if mu[-index] - baseline > snr * noise and\
+           mu[-(index+1)] - baseline > snr * noise and\
+           mu[-(index+2)] - baseline > snr * noise and\
+           mu[-(index+3)] - baseline > snr * noise:
             right = bins - index
         index += 1
 
     return left, right
 
+def get_wX(mu, rms, X):
+    bins = len(mu)
+    baseline = np.min(mu) + rms
+    mu = mu - baseline
+    peak = np.max(mu)
+    wX_level = X*peak /100.
+    wX_level1sp = wX_level + rms
+    wX_level1sn = wX_level - rms
+#    print (wX_level, wX_level1sp, wX_level1sn, peak) 
+    left = bins
+    left1p = bins
+    left1n = bins
+    right = 0
+    right1p = 0
+    right1n = 0
+    index = 0
+    while left == bins and index < bins:
+        if mu[index] > wX_level:
+            left = index
+        index += 1
+    index = 0
+    while left1p == bins and index < bins:
+        if mu[index] > wX_level1sp:
+            left1p = index
+        index += 1
+    index = 0
+    while left1n == bins and index < bins:
+        if mu[index] > wX_level1sn:
+            left1n = index
+        index += 1
+    index = 1
+    while right == 0 and index < bins:
+        if mu[-index] > wX_level:
+            right = bins - index
+        index += 1
+    index = 0
+    while right1p == 0 and index < bins:
+        if mu[-index] > wX_level1sp:
+            right1p = bins -index
+        index += 1
+    index = 0
+    while right1n == 0 and index < bins:
+        if mu[-index] > wX_level1sn:
+            right1n = bins - index
+        index += 1
+
+
+    wX = right - left + 1
+    wXp = right1n - left1n - wX + 1
+    wXn = right1p - left1p - wX + 1
+#    return left1n, left, left1p, right1p, right, right1n
+    return wX, wXp, wXn
+     
 # ## Define the main callable function pulseshape(1D_data_array)
 def pulseshape(data,mysnr):
     originalbins = len(data)
@@ -80,8 +138,9 @@ def pulseshape(data,mysnr):
     gp1 = get_gp(profile)
 #    print(gp1.log_likelihood(profile), gp1.get_parameter_names(),gp1.get_parameter_vector())
     # ## Find a window of data around the pulse and produce noiseless data
-
-    left, right = get_boundaries(profile, gp1, mysnr)
+    mu_b, var_b = gp1.predict(profile, np.arange(len(profile)), return_var=True)
+    noise = np.sqrt(np.exp(gp1.get_parameter_vector()[1]))
+    left, right = get_boundaries(mu_b, noise, mysnr)
     if right == 0 and left == originalbins:
         return 0,60,originalbins-60,np.zeros((originalbins))
     bins = right + 60 - (left - 60) 
