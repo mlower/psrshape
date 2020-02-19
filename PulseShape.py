@@ -51,7 +51,7 @@ def get_boundaries(mu, noise, snr):
     index = 0
 
 #    print('noise: ', noise)
-    baseline = np.min(mu) + noise
+    baseline = np.min(mu)
     while left == bins and index < bins:
         if mu[index] - baseline > snr * noise and \
            mu[index+1] - baseline > snr * noise and \
@@ -72,7 +72,7 @@ def get_boundaries(mu, noise, snr):
 
 def get_wX(mu, rms, X):
     bins = len(mu)
-    baseline = np.min(mu) + rms
+    baseline = np.min(mu)
     mu = mu - baseline
     peak = np.max(mu)
     wX_level = X*peak /100.
