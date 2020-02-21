@@ -51,7 +51,8 @@ def get_boundaries(mu, noise, snr):
     index = 0
 
 #    print('noise: ', noise)
-    baseline = np.min(mu)
+#    baseline = np.min(mu)
+    baseline = 0.0
     while left == bins and index < bins:
         if mu[index] - baseline > snr * noise and \
            mu[index+1] - baseline > snr * noise and \
@@ -72,7 +73,8 @@ def get_boundaries(mu, noise, snr):
 
 def get_wX(mu, rms, X):
     bins = len(mu)
-    baseline = np.min(mu)
+    #baseline = np.min(mu)
+    baseline = 0.0
     mu = mu - baseline
     peak = np.max(mu)
     wX_level = X*peak /100.
@@ -139,8 +141,10 @@ def pulseshape(data,mysnr):
 #    print(gp1.log_likelihood(profile), gp1.get_parameter_names(),gp1.get_parameter_vector())
     # ## Find a window of data around the pulse and produce noiseless data
     mu_b, var_b = gp1.predict(profile, np.arange(len(profile)), return_var=True)
+#    print('First GP')
     noise = np.sqrt(np.exp(gp1.get_parameter_vector()[1]))
     left, right = get_boundaries(mu_b, noise, mysnr)
+#    print('SNR boundaries found: ', left, right, noise)
     if right == 0 and left == originalbins:
         return 0,60,originalbins-60,np.zeros((originalbins))
     bins = right + 60 - (left - 60) 
@@ -154,6 +158,7 @@ def pulseshape(data,mysnr):
     gp_last = get_gp(yn)
     t = np.arange(len(yn))
     mu, var = gp_last.predict(yn, t, return_var=True)
+#    print('Second GP')
     noise = np.sqrt(np.exp(gp_last.get_parameter_vector()[1]))
 #    print('GP Noise standard deviation: ', noise)
 #    std = np.sqrt(np.mean(var)+noise**2)
