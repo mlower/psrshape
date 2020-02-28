@@ -5,17 +5,24 @@ import matplotlib.pyplot as plt
 import PulseShape as ps
 
 #data_raw = np.loadtxt('1735-0724_20cmWBC_oct05.txt', comments='F')
-data_raw = np.loadtxt('vela.dat', comments='F')
+data_raw = np.loadtxt('data.dat', comments='F')
 data = data_raw[:,3]
 rawx = np.arange(len(data))
-std, left, right, mu = ps.pulseshape(data,2.0)
+margin = np.int(len(data)/20)
+mcmc = False
+std, left, right, mu = ps.pulseshape(data,2.0,mcmc)
+w50, w50p, w50n = ps.get_wX(mu, std, 50)
 w10, w10p, w10n = ps.get_wX(mu, std, 10)
 w5, w5p, w5n = ps.get_wX(mu, std, 5)
 w1, w1p, w1n = ps.get_wX(mu, std, 1)
 print('noise: ', std)
 print( 'left, right above threshold: ',left, right)
-smoothx = np.arange(left-60,right+60,1)
+smoothx = np.arange(left,right,1)
 print('size of mu: ', len(mu))
+if w50 + w50p < right - left + 1 :
+    print('W50 params: ', w50, w50p, w50n)
+else:
+    print('cannot measure w50')
 if w10 + w10p < right - left + 1 :
     print('W10 params: ', w10, w10p, w10n)
 else:
@@ -30,5 +37,5 @@ else:
     print('cannot measure w1')
 
 plt.plot(rawx, data, 'b-')
-plt.plot(smoothx, mu, 'r-')
+plt.plot(rawx, mu, 'r-')
 plt.show()
