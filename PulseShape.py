@@ -133,7 +133,7 @@ def pulseshape(data,mysnr,mcmc):
     profile = np.roll(data, np.int(originalbins/2 - binmax))
     noise_start = np.std(profile[0:50])
     profile = profile/noise_start
-    margin = np.int(originalbins/20)
+    margin = np.int(originalbins/10)
     # in units of SNR from here
     
     # ## Start the GP 
