@@ -217,3 +217,7 @@ def pulseshape(data,mysnr,mcmc):
 #    plt.plot(t, yn, ".k")
 #    plt.plot(t, noiseless, "-b")
 #    plt.show()
+def getflux(profile,left,right):
+    flux = np.sum(profile[left:right])
+    return flux
+
