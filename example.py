@@ -30,15 +30,9 @@ for chan in np.arange(channels):
     shift = np.int(len(data)/2 - binmax)
     profile = np.roll(data, shift)
     std, left, right, mu = ps.pulseshape(profile,snr,mcmc)
-    flux = ps.getflux(profile,np.int(left),np.int(right))
+    bflux[chan], errorflux[chan] = ps.getflux(profile,np.int(left),np.int(right),std)
     #baseline =  np.mean((np.mean(profile[0:np.int(left)]),np.mean(profile[np.int(right):-1])))
-    maskedprofile = profile
-    maskedprofile[np.int(left):np.int(right)] = 0.0
-    baseline = np.mean(maskedprofile)
-    bflux[chan] = flux-baseline*(right-left)
-    errorflux[chan] =  np.sqrt(right-left)*std
-    print('flux: ', flux, baseline )
-    print('baselined flux: ', bflux[chan])
+    print('flux: ', bflux[chan], 'mJy' )
     w50, w50p, w50n = ps.get_wX(mu, std, 50)
     w10, w10p, w10n = ps.get_wX(mu, std, 10)
     w5, w5p, w5n = ps.get_wX(mu, std, 5)
@@ -84,7 +78,8 @@ for chan in np.arange(channels):
     idx += bins
 plt.show()
 plt.plot(bflux, 'ro')
-plt.errorbar(np.arange(channels), bflux, errorflux, fmt='none')
+#plt.errorbar(np.arange(channels), bflux, errorflux, fmt='none')
 plt.show()
 print('Measured fluxes')
 print(bflux)
+print(10**bflux)
