@@ -221,7 +221,7 @@ def getflux(profile,left,right, std):
     maskedprofile = np.copy(profile)
     maskedprofile[np.int(left):np.int(right)] = 0.0
     baseline = np.mean(maskedprofile)
-    errorflux =  np.sqrt(right-left)*std
+    errorflux =  np.sqrt(right-left)*std/np.float(len(profile))
     flux = (np.sum(profile[left:right]) - baseline*(right-left))/np.float(len(profile))
     return flux, errorflux
 
