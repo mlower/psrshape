@@ -10,10 +10,10 @@ parser = argparse.ArgumentParser(description='input SNR cutoff')
 parser.add_argument('-s','--snr', help='signal to noise cut', type=float, required=True)
 args = parser.parse_args()
 snr =  args.snr
-#data_raw = np.loadtxt('1735-0724_20cmWBC_oct05.txt', comments='F')
-data_raw = np.loadtxt('data.dat', comments='F')
-channels = np.int(data_raw[-1,1]) + 1
-bins = np.int(data_raw[-1,2]) + 1
+data_raw = np.loadtxt('1735-0724_20cmWBC_oct05.txt', comments='F')
+# data_raw = np.loadtxt('data.dat', comments='F')
+channels = int(data_raw[-1,1]) + 1
+bins = int(data_raw[-1,2]) + 1
 print('channels and bins in file:', channels, bins)
 idx = 0
 bflux = np.zeros((channels))
@@ -22,16 +22,16 @@ for chan in np.arange(channels):
     print('################## Channel ', chan, '##################')
     data = data_raw[idx:idx+bins,3]
     rawx = np.arange(len(data))
-    margin = np.int(len(data)/20)
+    margin = int(len(data)/20)
     mcmc = False
     #mcmc = True
     #rotate the data to centre the peak
     binmax = np.argmax(data)
-    shift = np.int(len(data)/2 - binmax)
+    shift = int(len(data)/2 - binmax)
     profile = np.roll(data, shift)
     std, left, right, mu = ps.pulseshape(profile,snr,mcmc)
-    bflux[chan], errorflux[chan] = ps.getflux(profile,np.int(left),np.int(right),std)
-    #baseline =  np.mean((np.mean(profile[0:np.int(left)]),np.mean(profile[np.int(right):-1])))
+    bflux[chan], errorflux[chan] = ps.getflux(profile,int(left),int(right),std)
+    #baseline =  np.mean((np.mean(profile[0:int(left)]),np.mean(profile[int(right):-1])))
     print('flux: ', bflux[chan], 'mJy' )
     w50, w50p, w50n = ps.get_wX(mu, std, 50)
     w10, w10p, w10n = ps.get_wX(mu, std, 10)
@@ -61,12 +61,12 @@ for chan in np.arange(channels):
         print('cannot measure w1')
         print('W1 params: ', w1, w1p, w1n)
 
-    plt.plot(rawx, data, 'b-')
+    plt.plot(rawx, data, 'b-', alpha=0.5)
     new_mu = np.roll(mu, -shift)
     plt.plot(rawx, new_mu, 'r-')
     residual = data - new_mu 
     print("residual RMS: ", np.std(residual[0:100])) 
-    plt.plot(rawx, residual, 'g-')
+    # plt.plot(rawx, residual, 'g-')
     left = left - shift
     right = right - shift
     print( 'left, right above threshold: ',left, right)
@@ -76,10 +76,11 @@ for chan in np.arange(channels):
     plt.axvline(x=vxr,color='red')
     #plt.show()
     idx += bins
+    print("IDX = ",idx)
 plt.show()
-plt.plot(bflux, 'ro')
+# plt.plot(bflux, 'ro')
 #plt.errorbar(np.arange(channels), bflux, errorflux, fmt='none')
-plt.show()
+# plt.show()
 print('Measured fluxes')
 print(bflux)
 print(10**bflux)

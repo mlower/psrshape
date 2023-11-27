@@ -130,10 +130,10 @@ def pulseshape(data,mysnr,mcmc):
     originalbins = len(data)
     # roll the profile to bring the peak to the centre
     binmax = np.argmax(data)
-    profile = np.roll(data, np.int(originalbins/2 - binmax))
+    profile = np.roll(data, int(originalbins/2 - binmax))
     noise_start = np.std(profile[0:50])
     profile = profile/noise_start
-    margin = np.int(originalbins/10)
+    margin = int(originalbins/10)
     # in units of SNR from here
     
     # ## Start the GP 
@@ -151,8 +151,8 @@ def pulseshape(data,mysnr,mcmc):
     bins = right + margin - (left - margin) 
     #    print('boundaries: ', left, right)
     if left > margin and right < originalbins-margin:
-        base1 = np.int(left/2)
-        base2 = np.int(right + 0.5*(originalbins-right)) 
+        base1 = int(left/2)
+        base2 = int(right + 0.5*(originalbins-right)) 
         baseline = 0.5 * (np.mean(profile[0:base1]) + np.mean(profile[base2:]))
         std_baseline = 0.5 * (np.std(profile[0:base1]) + np.std(profile[base2:]))
     else:
@@ -163,7 +163,7 @@ def pulseshape(data,mysnr,mcmc):
     # ## noiseless profile 
     leftout = left - (originalbins/2 - binmax)
     rightout = right - (originalbins/2 - binmax)
-    profileout = np.roll(mu_b, -np.int(originalbins/2 - binmax))
+    profileout = np.roll(mu_b, -int(originalbins/2 - binmax))
     if not mcmc:
         return noise*noise_start, leftout, rightout, profileout*noise_start
 
@@ -212,20 +212,20 @@ def pulseshape(data,mysnr,mcmc):
         allsamples[i,:] = gp_last.sample_conditional(yn, t)
     noiseless=np.mean(allsamples,0)
     mu_b[left-min(left,margin):min(right+margin,len(profile))] = noiseless
-    profileout = np.roll(mu_b, -np.int(originalbins/2 - binmax))
+    profileout = np.roll(mu_b, -int(originalbins/2 - binmax))
     return noise*noise_start, leftout, rightout, profileout*noise_start
 #    plt.plot(t, yn, ".k")
 #    plt.plot(t, noiseless, "-b")
 #    plt.show()
 def getflux(profile,left,right, std):
     maskedprofile = np.copy(profile)
-#    maskedprofile[np.int(left):np.int(right)] = 0.0
-    sumprofile = np.sum(maskedprofile[np.int(left):np.int(right)])
+#    maskedprofile[int(left):int(right)] = 0.0
+    sumprofile = np.sum(maskedprofile[int(left):int(right)])
     sumall = np.sum(maskedprofile)
 
 #    baseline = np.mean(maskedprofile)
     baseline = (sumall - sumprofile)/(len(profile)-(right-left+1)) 
-    errorflux =  np.sqrt(right-left+1)*std/np.float(len(profile))
-    flux = (np.sum(profile[left:right]) - baseline*(right-left))/np.float(len(profile))
+    errorflux =  np.sqrt(right-left+1)*std/float(len(profile))
+    flux = (np.sum(profile[left:right]) - baseline*(right-left))/float(len(profile))
     return flux, errorflux
 
